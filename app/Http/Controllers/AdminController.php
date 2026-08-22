@@ -25,18 +25,7 @@ class AdminController extends Controller
 
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-        return view('admin.tags.edit');
-    }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         //
@@ -45,19 +34,11 @@ class AdminController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(contact $contact)
     {
-        //
+        return view('admin.show', compact('contact'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Tag $tag)
-    {
-        //
-        return view('admin.tags.edit', compact('tag'));
-    }
 
     /**
      * Update the specified resource in storage.
@@ -70,8 +51,12 @@ class AdminController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Contact $contact)
     {
-        //
+        //お問い合わせ削除
+        $contact->delete();
+
+        return redirect()->route('admin.index')
+            ->with('success', 'お問い合わせを削除しました。');
     }
 }
