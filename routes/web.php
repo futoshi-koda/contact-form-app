@@ -22,9 +22,15 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
-Route::get('/admin/index', [AdminController::class, 'index'])->name('admin.index');
-Route::resource('admin/tags', TagController::class)->only(['store', 'edit', 'update', 'destroy']);
-Route::redirect('/admin', '/admin/index');
+// 管理画面トップ（/admin も /admin/index も同じコントローラーへ）
+Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
+Route::get('/admin/index', [AdminController::class, 'index']);
+
+// タグ管理
+Route::resource('admin/tags', TagController::class)
+    ->only(['store', 'edit', 'update', 'destroy']);
+
+// お問い合わせ詳細・削除など
 Route::resource('admin/contacts', AdminController::class)
-    ->only(['index', 'store', 'show', 'destroy'])
+    ->only(['show', 'destroy'])
     ->names('admin.contacts');
