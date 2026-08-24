@@ -53,7 +53,7 @@ class AdminController extends Controller
         }
 
         // 最新順で取得（検索パラメータを保持してページネーション）
-        $contacts = $query->latest()->paginate(10)->withQueryString();
+        $contacts = $query->latest()->paginate(7)->withQueryString();
 
         return view('admin.index', compact('categories', 'tags', 'contacts'));
     }
