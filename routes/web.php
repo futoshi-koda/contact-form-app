@@ -27,15 +27,18 @@ Route::get('/contact/index', [ContactController::class, 'index']);
 Route::post('/contacts/confirm', [ContactController::class, 'confirm'])->name('contacts.confirm');
 Route::post('/contacts', [ContactController::class, 'store'])->name('contacts.store');
 
-// 管理画面トップ（/admin も /admin/index も同じコントローラーへ）
-Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
-Route::get('/admin/index', [AdminController::class, 'index']);
+//認証が必要なルート
+Route::middleware('auth')->group(function () {
+    // 管理画面トップ（/admin も /admin/index も同じコントローラーへ）
+    Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
+    Route::get('/admin/index', [AdminController::class, 'index']);
 
-// タグ管理
-Route::resource('admin/tags', TagController::class)
-    ->only(['store', 'edit', 'update', 'destroy']);
+    // タグ管理
+    Route::resource('admin/tags', TagController::class)
+        ->only(['store', 'edit', 'update', 'destroy']);
 
-// お問い合わせ詳細・削除など
-Route::resource('admin/contacts', AdminController::class)
-    ->only(['show', 'destroy'])
-    ->names('admin.contacts');
+    // お問い合わせ詳細・削除など
+    Route::resource('admin/contacts', AdminController::class)
+        ->only(['show', 'destroy'])
+        ->names('admin.contacts');
+});
