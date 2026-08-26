@@ -20,28 +20,34 @@ class TagControllerTest extends TestCase
     }
 
     /** @test */
-    public function タグ新規登録にてタグ名の必須入力_文字数制限_一意性が維持される(): void
+    public function 正常系：有効なタグ名は受け入れる(): void
     {
-        // 1. 正常系：有効なタグ名
         $validData = ['name' => '新規タグ'];
         $request = TagRequest::create('/tags', 'POST', $validData);
         $validator = Validator::make($validData, $request->rules());
         $this->assertFalse($validator->fails());
-
-        // 2. 異常系：タグ名未入力
+    }
+    /** @test */
+    public function 異常系：タグ名未入力は拒否(): void
+    {
         $emptyData = ['name' => ''];
         $request = TagRequest::create('/tags', 'POST', $emptyData);
         $validator = Validator::make($emptyData, $request->rules());
         $this->assertTrue($validator->fails());
         $this->assertArrayHasKey('name', $validator->errors()->toArray());
-
+    }
+    /** @test */
+    public function 境界値：タグ名51文字は拒否(): void
+    {
         // 3. 異常系：タグ名51文字
         $longData = ['name' => str_repeat('あ', 51)];
         $request = TagRequest::create('/tags', 'POST', $longData);
         $validator = Validator::make($longData, $request->rules());
         $this->assertTrue($validator->fails());
-
-        // 4. 異常系：既存タグ名と同名
+    }
+    /** @test */
+    public function 異常系：既存タグ名と同名は拒否(): void
+    {
         $existingTag = Tag::first();
         $duplicateData = ['name' => $existingTag->name];
         $request = TagRequest::create('/tags', 'POST', $duplicateData);
@@ -50,11 +56,10 @@ class TagControllerTest extends TestCase
     }
 
     /** @test */
-    public function タグ更新にて自身の名前維持は可能だが他で既に使用されているタグ名への変更は拒否(): void
+    public function 正常系：タグ更新にて自身の名前維持は可能(): void
     {
         $tag = Tag::first(); // 対象のタグ
 
-        // 1. 正常系：自身の名前のまま更新は許可
         $sameNameData = ['name' => $tag->name];
 
         $request = TagRequest::create("/tags/{$tag->id}", 'PUT', $sameNameData);
@@ -64,8 +69,11 @@ class TagControllerTest extends TestCase
 
         $validator = Validator::make($sameNameData, $request->rules());
         $this->assertFalse($validator->fails());
-
-        // 2. 異常系：他で既に使用されているタグ名への変更は拒否
+    }
+    /** @test */
+    public function 異常系：タグ更新にて他で既に使用されているタグ名への変更は拒否(): void
+    {
+        $tag = Tag::first(); // 対象のタグ
         $anotherTag = Tag::skip(1)->first(); // 既存タグ
         if ($anotherTag) {
             $duplicateData = ['name' => $anotherTag->name];
