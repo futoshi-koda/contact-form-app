@@ -10,6 +10,8 @@ ISSUE１とメインが同一だとプルリクエストが作成できないた
 
 ## ER図
 
+<img width="1294" height="715" alt="お問い合わせアプリ_ER図" src="https://github.com/user-attachments/assets/778df9b3-3007-438d-9648-be849bd3972d" />
+
 ## 環境構築手順
 1. Laravelプロジェクトの作成 (Laravel 10.x)
 以下のDockerコマンドを実行。
