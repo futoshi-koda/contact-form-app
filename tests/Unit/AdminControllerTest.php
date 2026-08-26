@@ -49,4 +49,44 @@ class AdminControllerTest extends TestCase
         $this->assertTrue($validator->fails());
         $this->assertArrayHasKey('gender', $validator->errors()->toArray());
     }
+    /** @test */
+    public function 正しいフィルタ条件を受け付けること(): void
+    {
+        $data = [
+            'keyword' => 'テスト',
+            'gender' => '1',
+            'category_id' => '1',
+            'date' => '2026-08-26',
+        ];
+
+        // フォームリクエスト（AdminRequestなど）または Validator でルールをチェック
+        $rules = [
+            'gender' => ['nullable', 'in:0,1,2,3,all'],
+            'category_id' => ['nullable', 'exists:categories,id'],
+        ];
+
+        $validator = \Illuminate\Support\Facades\Validator::make($data, $rules);
+
+        $this->assertFalse($validator->fails());
+    }
+
+    /** @test */
+    public function 不正な性別や存在しないカテゴリIDを拒否すること(): void
+    {
+        $data = [
+            'gender' => '9',
+            'category_id' => '99999',
+        ];
+
+        $rules = [
+            'gender' => ['nullable', 'in:0,1,2,3,all'],
+            'category_id' => ['nullable', 'exists:categories,id'],
+        ];
+
+        $validator = \Illuminate\Support\Facades\Validator::make($data, $rules);
+
+        $this->assertTrue($validator->fails());
+        $this->assertArrayHasKey('gender', $validator->errors()->messages());
+        $this->assertArrayHasKey('category_id', $validator->errors()->messages());
+    }
 }
