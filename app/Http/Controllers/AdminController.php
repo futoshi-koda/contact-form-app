@@ -6,6 +6,7 @@ use App\Http\Requests\AdminRequest;
 use App\Models\Tag;
 use App\Models\Category;
 use App\Models\Contact;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 use Illuminate\Http\Request;
 
@@ -58,27 +59,12 @@ class AdminController extends Controller
         return view('admin.index', compact('categories', 'tags', 'contacts'));
     }
 
-
-    public function store(Request $request)
-    {
-        //
-    }
-
     /**
      * Display the specified resource.
      */
     public function show(contact $contact)
     {
         return view('admin.show', compact('contact'));
-    }
-
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
     }
 
     /**
@@ -91,5 +77,87 @@ class AdminController extends Controller
 
         return redirect()->route('admin.index')
             ->with('success', 'お問い合わせを削除しました。');
+    }
+    public function export(Request $request): StreamedResponse
+    {
+        // 1. 検索フィルタの適用（indexメソッドと同じ検索ロジックを通す）
+        $query = Contact::with('category');
+
+        if ($request->filled('keyword')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('first_name', 'like', "%{$request->keyword}%")
+                    ->orWhere('last_name', 'like', "%{$request->keyword}%")
+                    ->orWhere('email', 'like', "%{$request->keyword}%");
+            });
+        }
+
+        if ($request->filled('gender') && !in_array($request->gender, ['0', 'all', ''], true)) {
+            $query->where('gender', $request->gender);
+        }
+
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        if ($request->filled('date')) {
+            $query->whereDate('created_at', $request->date);
+        }
+
+        // フィルタ未指定時も含め、基本は新着順で取得
+        $contacts = $query->latest()->get();
+
+        // 2. 性別数値 -> 文字列変換マップ
+        $genderLabels = [
+            1 => '男性',
+            2 => '女性',
+            3 => 'その他',
+        ];
+
+        // 3. CSVダウンロードレスポンス作成
+        $response = new StreamedResponse(function () use ($contacts, $genderLabels) {
+            $stream = fopen('php://output', 'w');
+
+            // Excel文字化け防止用 UTF-8 BOM の書き込み
+            fwrite($stream, "\xEF\xBB\xBF");
+
+            // ヘッダー行を出力
+            fputcsv($stream, [
+                'ID',
+                '氏名',
+                '性別',
+                'メール',
+                '電話',
+                '住所',
+                '建物',
+                'カテゴリ',
+                '内容',
+                '作成日時',
+            ]);
+
+            // データ行を出力
+            foreach ($contacts as $contact) {
+                fputcsv($stream, [
+                    $contact->id,
+                    $contact->first_name . ' ' . $contact->last_name,
+                    $genderLabels[$contact->gender] ?? '不明',
+                    $contact->email,
+                    $contact->tel,
+                    $contact->address,
+                    $contact->building,
+                    $contact->category ? $contact->category->content : '',
+                    $contact->detail,
+                    $contact->created_at->format('Y-m-d H:i:s'),
+                ]);
+            }
+
+            fclose($stream);
+        });
+
+        $fileName = 'contacts_' . date('Ymd_His') . '.csv';
+
+        $response->headers->set('Content-Type', 'text/csv; charset=UTF-8');
+        $response->headers->set('Content-Disposition', 'attachment; filename="' . $fileName . '"');
+
+        return $response;
     }
 }

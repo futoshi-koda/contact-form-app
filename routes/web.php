@@ -41,4 +41,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('admin/contacts', AdminController::class)
         ->only(['show', 'destroy'])
         ->names('admin.contacts');
+
+    //エクスポート機能
+    Route::get('/contacts/export', [AdminController::class, 'export'])->name('admin.export');
 });
