@@ -135,10 +135,14 @@ sail artisan migrate --seed
 ## 使用技術
 - PHP 8.x
 - Laravel 10.x
-- 
-- 
-- 
-- 
+- Laravel Fortify（認証）
+- phpMyAdmin
+- Eloquent / Factory / Seeder
+- PHPUnit / Orchestra Testbench
+- Docker / Laravel Sail
+- Tailwind CSS
+- Laravel Form Request
+- StreamedResponse / CSV Output
 - 
 
 ## APIエンドポイント一覧
@@ -150,7 +154,8 @@ PUT      /api/v1/contacts/{contact}  お問い合わせ更新
 DELETE   /api/v1/contacts/{contact}  お問い合わせ削除
 
 ## 開発環境URL
-
+http://localhost
+phpMyAdmin:http://localhost:8080
 
 ## 作成者
 甲田　太志

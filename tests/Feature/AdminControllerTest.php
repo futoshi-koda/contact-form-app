@@ -99,4 +99,59 @@ class AdminControllerTest extends TestCase
             'id' => $contact->id,
         ]);
     }
+    /** @test */
+    public function ログイン済み管理者がフィルタ条件付きでCSVをダウンロードできること(): void
+    {
+        // 条件に合うデータと合わないデータを作成
+        $matchContact = Contact::factory()->create([
+            'first_name' => '該当太郎',
+            'gender' => 1,
+        ]);
+        $unmatchContact = Contact::factory()->create([
+            'first_name' => '非該当次郎',
+            'gender' => 2,
+        ]);
+
+        // フィルタ条件（gender=1）を指定してエクスポートを実行
+        $response = $this->actingAs($this->user)->get('/contacts/export?gender=1');
+
+        $response->assertStatus(200);
+        $response->assertHeader('content-type', 'text/csv; charset=UTF-8');
+
+        $content = $response->streamedContent();
+
+        // 該当するデータのみが含まれ、該当しないデータが含まれていないこと
+        $this->assertStringContainsString('該当太郎', $content);
+        $this->assertStringNotContainsString('非該当次郎', $content);
+    }
+
+    /** @test */
+    public function フィルタ無指定時は全件が新着順でCSV出力されること(): void
+    {
+        // 作成日時に差をつけて2件作成
+        $oldContact = Contact::factory()->create([
+            'first_name' => '古いデータ',
+            'created_at' => now()->subDay(),
+        ]);
+        $newContact = Contact::factory()->create([
+            'first_name' => '新しいデータ',
+            'created_at' => now(),
+        ]);
+
+        // パラメータなしでエクスポートを実行
+        $response = $this->actingAs($this->user)->get('/contacts/export');
+
+        $response->assertStatus(200);
+
+        $content = $response->streamedContent();
+
+        // 両方のデータが出力に含まれていること
+        $this->assertStringContainsString('新しいデータ', $content);
+        $this->assertStringContainsString('古いデータ', $content);
+
+        // 新しいデータが古いデータよりも前に出力されていること（新着順）
+        $this->assertTrue(
+            strpos($content, '新しいデータ') < strpos($content, '古いデータ')
+        );
+    }
 }
