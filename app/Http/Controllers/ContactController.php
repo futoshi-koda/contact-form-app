@@ -52,6 +52,10 @@ class ContactController extends Controller
             $contact->tags()->sync($request->input('tag_ids'));
         }
 
+        return redirect('/thanks');
+    }
+    public function thanks()
+    {
         return view('contact.thanks');
     }
 }
