@@ -1,8 +1,8 @@
 <?php
 
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\TagController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\TagController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -26,8 +26,9 @@ Route::get('/', [ContactController::class, 'index'])->name('contacts.index');
 Route::get('/contact/index', [ContactController::class, 'index']);
 Route::post('/contacts/confirm', [ContactController::class, 'confirm'])->name('contacts.confirm');
 Route::post('/contacts', [ContactController::class, 'store'])->name('contacts.store');
+Route::get('/thanks', [ContactController::class, 'thanks'])->name('thanks');
 
-//認証が必要なルート
+// 認証が必要なルート
 Route::middleware('auth')->group(function () {
     // 管理画面トップ（/admin も /admin/index も同じコントローラーへ）
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
@@ -42,6 +43,6 @@ Route::middleware('auth')->group(function () {
         ->only(['show', 'destroy'])
         ->names('admin.contacts');
 
-    //エクスポート機能
+    // エクスポート機能
     Route::get('/contacts/export', [AdminController::class, 'export'])->name('admin.export');
 });
