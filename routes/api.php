@@ -1,8 +1,8 @@
 <?php
 
+use App\Http\Controllers\Api\V1\ContactController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::prefix('v1')->group(function () {
+    // お問い合わせ API (全5項目: index, show, store, update, destroy)
+    Route::apiResource('contacts', ContactController::class);
 });
