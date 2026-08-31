@@ -23,16 +23,9 @@ class ApiContactTest extends TestCase
         $this->seed(CategorySeeder::class);
     }
 
-    /* =========================================================================
-     * 1. AdminRequest（検索・フィルタのバリデーション単体テスト）
-     * ========================================================================= */
-
-    /**
-     * AdminRequest: 正常値（キーワード、性別、カテゴリ、日付）が通過すること
-     */
-    public function test_admin_request_passes_with_valid_data(): void
+    /** @test */
+    public function 正常値_キーワード_性別_カテゴリ_日付_が通過する(): void
     {
-        // Seederで投入された最初のカテゴリーを取得 (ID: 1)
         $category = Category::first();
 
         $data = [
@@ -48,10 +41,8 @@ class ApiContactTest extends TestCase
         $this->assertTrue($validator->passes());
     }
 
-    /**
-     * AdminRequest: 不正な値（性別外、存在しないカテゴリ、不正な日付）が拒否されること
-     */
-    public function test_admin_request_fails_with_invalid_data(): void
+    /** @test */
+    public function 不正値_性別外_存在しないカテゴリ_不正な日付_が拒否される(): void
     {
         $data = [
             'gender' => 99,             // in 違反
@@ -70,18 +61,11 @@ class ApiContactTest extends TestCase
         $this->assertArrayHasKey('date', $errors);
     }
 
-    /* =========================================================================
-     * 2. StoreContactRequest（新規作成のバリデーション単体テスト）
-     * ========================================================================= */
-
-    /**
-     * StoreContactRequest: 全必須項目およびタグID入力が通過すること
-     */
-    public function test_store_contact_request_passes_with_valid_data(): void
+    /** @test */
+    public function 新規作成_全必須項目およびタグ入力が通過する(): void
     {
         $category = Category::first();
 
-        // テスト用のタグをDBに作成（TagFactoryを使わず直接作成）
         $tag1 = Tag::create(['name' => 'テストタグ1']);
         $tag2 = Tag::create(['name' => 'テストタグ2']);
 
@@ -104,10 +88,8 @@ class ApiContactTest extends TestCase
         $this->assertTrue($validator->passes());
     }
 
-    /**
-     * StoreContactRequest: 必須項目の未入力や不正なタグIDが拒否されること
-     */
-    public function test_store_contact_request_fails_with_invalid_data(): void
+    /** @test */
+    public function 新規作成_必須項目の未入力や不正なタグIDが拒否される(): void
     {
         $data = [
             'first_name' => '',              // required 違反
