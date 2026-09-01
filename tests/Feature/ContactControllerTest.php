@@ -141,10 +141,12 @@ class ContactControllerTest extends TestCase
             'tag_ids' => [$tag->id],
         ];
 
-        // POST /contacts にデータを送信して Thanks ページを表示させる
+        // 1. POST送信後は /thanks へリダイレクト（302）されることを検証
         $response = $this->post('/contacts', $data);
+        $response->assertRedirect('/thanks');
 
-        // 200 OK で正常表示されること
-        $response->assertStatus(200);
+        // 2. リダイレクト先（GET /thanks）にアクセスして 200 OK が返ることを検証
+        $thanksResponse = $this->get('/thanks');
+        $thanksResponse->assertStatus(200);
     }
 }

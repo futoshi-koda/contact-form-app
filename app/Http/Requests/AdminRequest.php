@@ -31,7 +31,7 @@ class AdminRequest extends FormRequest
             'gender' => [
                 'nullable',
                 'integer',
-                'in:1,2,3',
+                'in:0,1,2,3',
             ],
             'category_id' => [
                 'nullable',
