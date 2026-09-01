@@ -37,8 +37,11 @@ class AdminControllerTest extends TestCase
             'tel' => '09000000000',
             'address' => '東京都',
             'detail' => '詳細テスト',
-            'created_at' => '2026-08-26 10:00:00',
         ]);
+
+        // 作成したレコードの日付を確実に指定日に更新
+        $targetContact->created_at = '2026-08-26 10:00:00';
+        $targetContact->save();
 
         // ログイン状態で GET アクセス
         $response = $this->actingAs($this->user)->get('/admin?' . http_build_query([

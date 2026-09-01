@@ -10,13 +10,14 @@ use App\Http\Resources\ContactResource;
 use App\Models\Contact;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use App\Http\Requests\AdminRequest;
 
 class ContactController extends Controller
 {
     /**
      * AP01: お問い合わせ一覧（検索・ページネーション付き）
      */
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(AdminRequest $request): AnonymousResourceCollection
     {
         $query = Contact::query();
 
